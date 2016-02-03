@@ -3,8 +3,9 @@ package service
 import (
 	"encoding/json"
 	"net/http/httptest"
-	"strings"
 	"testing"
+
+	"gopkg.in/yaml.v2"
 )
 
 const TestPrivateKeyPath = "../TestKey.asc"
@@ -13,12 +14,12 @@ func TestFormatAssertion(t *testing.T) {
 	assertions := Assertions{Model: "聖誕快樂", SerialNumber: "ABC1234",
 		PublicKey: "NNhqloxPyIYXiTP+3JTPWV/mNoBar2geWIf/TKTNraWeyGL49TDxunDkf5T8yfCWbOaQCWFsr8yK2oawp3DNBjC4C9eYVN"}
 
+	var identity DeviceAssertion
+
 	response := formatAssertion(&assertions)
-	parts := strings.Split(response, "||")
-	if len(parts) != 3 {
-		t.Errorf("Expected 3 data parts, got %d", len(parts))
-	}
-	if parts[0] != assertions.PublicKey || parts[1] != assertions.Model || parts[2] != assertions.SerialNumber {
+	yaml.Unmarshal([]byte(response), &identity)
+
+	if identity.PublicKey != assertions.PublicKey || identity.Model != assertions.Model || identity.Serial != assertions.SerialNumber {
 		t.Error("Formatted assertion not as expected.")
 	}
 }

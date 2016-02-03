@@ -40,6 +40,7 @@ func main() {
 	// Start the web service router
 	router := mux.NewRouter()
 
-	router.Handle("/v1/sign", service.Middleware(http.HandlerFunc(service.SignHandler), &config)).Methods("POST")
+	router.Handle("/1.0/version", service.Middleware(http.HandlerFunc(service.VersionHandler), &config)).Methods("GET")
+	router.Handle("/1.0/sign", service.Middleware(http.HandlerFunc(service.SignHandler), &config)).Methods("POST")
 	log.Fatal(http.ListenAndServe(":8080", router))
 }

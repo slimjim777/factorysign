@@ -2,20 +2,40 @@ package service
 
 import (
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"net/http"
+	"time"
+
+	"gopkg.in/yaml.v2"
 )
 
 // ConfigSettings defines the parsed config file settings.
 type ConfigSettings struct {
 	PrivateKeyPath string `yaml:"privateKeyPath"`
+	Version        string `yaml:"version"`
+}
+
+// DeviceAssertion defines the device identity.
+type DeviceAssertion struct {
+	Type      string `yaml:"type"`
+	Brand     string `yaml:"brand"`
+	Model     string `yaml:"model"`
+	Serial    string `yaml:"serial"`
+	Timestamp string `yaml:"timestamp"`
+	Revision  int    `yaml:"revision"`
+	PublicKey string `yaml:"device-key"`
 }
 
 func formatAssertion(assertions *Assertions) string {
-	dataToSign := fmt.Sprintf("%s||%s||%s", assertions.PublicKey, assertions.Model, assertions.SerialNumber)
+	timestamp := time.Now().UTC().String()
+	assertion := DeviceAssertion{Type: "device", Brand: assertions.Model, Model: assertions.Model,
+		Serial: assertions.SerialNumber, Timestamp: timestamp, Revision: assertions.Revision, PublicKey: assertions.PublicKey}
 
-	return dataToSign
+	dataToSign, err := yaml.Marshal(assertion)
+	if err != nil {
+		panic(err)
+	}
+	return string(dataToSign)
 }
 
 // Return the armored private key as a string

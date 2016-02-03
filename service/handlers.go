@@ -8,16 +8,37 @@ import (
 
 // Assertions are the details of the device
 type Assertions struct {
+	Brand        string `json:"brand"`
 	Model        string `json:"model"`
 	SerialNumber string `json:"serial"`
-	PublicKey    string `json:"publickey"`
+	Type         string `json:"type"`
+	Revision     int    `json:"revision"`
+	PublicKey    string `json:"device-key"`
+}
+
+// VersionResponse is the JSON response from the API Version method
+type VersionResponse struct {
+	Version string `json:"version"`
 }
 
 // SignResponse is the JSON response from the API Sign method
 type SignResponse struct {
 	Success      bool   `json:"success"`
 	ErrorMessage string `json:"message"`
-	Signature    string `json:"signature"`
+	Signature    string `json:"identity"`
+}
+
+// VersionHandler is the API method to return the version of the service
+func VersionHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+	w.WriteHeader(http.StatusOK)
+
+	response := VersionResponse{Version: Config.Version}
+
+	// Encode the response as JSON
+	if err := json.NewEncoder(w).Encode(response); err != nil {
+		panic(err)
+	}
 }
 
 // SignHandler is the API method to sign assertions from the device
